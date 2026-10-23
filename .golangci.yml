@@ -1,0 +1,33 @@
+# golangci-lint configuration — the enforced style of this codebase.
+# Keep the enabled set small and intentional; document why a linter is off
+# only when it fights an idiomatic pattern we deliberately use.
+version: "2"
+
+run:
+  timeout: 5m
+
+linters:
+  default: none
+  enable:
+    - errcheck        # no silently dropped errors
+    - govet           # vet checks, incl. printf and shadow
+    - staticcheck     # the stdlib of Go lint
+    - unused          # dead code is a refactor left undone
+    - ineffassign     # assignments that never take effect
+    - misspell        # typos in comments/docs
+    - unconvert       # pointless conversions
+    - bodyclose       # http response bodies must be closed
+    - noctx           # http requests must carry a context
+    - durationcheck   # duration arithmetic sanity
+    - errorlint       # errors.Is/As over == and type asserts on error
+    - copyloopvar     # loop variable capture safety
+    - perfsprint      # fmt.SprintX where a cheaper call exists
+    - godot           # doc comments end in a period
+
+formatters:
+  enable:
+    - gofmt           # formatting enforced
+
+linters-settings:
+  godot:
+    scope: declarations   # only exported/doc comments, not chatter inside funcs

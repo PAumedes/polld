@@ -1,0 +1,21 @@
+# systemd USER service — install to ~/.config/systemd/user/polld.service
+#
+# A user service, not a system one: desktop notifications live on the session
+# D-Bus bus, which only user units inherit. See docs/adr/0005.
+[Unit]
+Description=polld - HTTP service watcher with desktop notifications
+Documentation=https://github.com/PAumedes/polld
+After=graphical-session.target
+PartOf=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=%h/.local/bin/polld
+Restart=on-failure
+RestartSec=10s
+# polld only needs network out; harden the rest.
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=default.target
