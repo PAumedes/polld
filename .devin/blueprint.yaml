@@ -1,0 +1,22 @@
+# https://docs.devin.ai/onboard-devin/environment-yaml
+# Commands run from the repo root.
+initialize: |
+  # Go 1.27.3 + golangci-lint + notify-send for smoke tests.
+  sudo apt-get update -qq && sudo apt-get install -y -qq libnotify-bin
+  curl -fsSL https://go.dev/dl/go1.27.3.linux-amd64.tar.gz -o /tmp/go.tgz
+  sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf /tmp/go.tgz
+  echo "PATH=/usr/local/go/bin:$HOME/go/bin:$PATH" >> $ENVRC
+  export PATH=/usr/local/go/bin:$HOME/go/bin:$PATH
+  go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.15.0
+maintenance: |
+  go mod download
+knowledge:
+  - name: lint
+    contents: |
+      golangci-lint run ./...
+  - name: test
+    contents: |
+      go test -race ./...
+  - name: build
+    contents: |
+      go build ./cmd/polld
