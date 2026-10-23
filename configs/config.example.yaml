@@ -1,0 +1,49 @@
+# polld configuration — copy to ~/.config/polld/config.yaml and edit.
+#
+# Secrets are never written here: reference environment variables as ${VAR}
+# (expanded at load) or name the variable in `token_env`. systemd user's
+# environment is the usual place to set them (e.g. ~/.config/environment.d/),
+# or an Environment= line in the unit override.
+
+# Default poll interval for every source; each source may override it.
+poll_interval: 1m
+
+# Where dedup state lives. Defaults to $XDG_STATE_HOME/polld/state.json.
+# state_file: ~/.local/state/polld/state.json
+
+notifications:
+  backend: auto        # auto | dbus | command (auto = D-Bus, then notify-send)
+  app_name: polld
+  urgency: normal      # low | normal | critical
+  # icon: dialog-information
+
+sources:
+  # --- GitLab: built-in adapter -------------------------------------------
+  - name: work-gitlab
+    type: gitlab
+    url: https://gitlab.example.com
+    token_env: GITLAB_TOKEN          # env var holding a PAT (api or read_api scope)
+    # interval: 1m                   # optional override of poll_interval
+    watch:
+      merge_requests:
+        projects: [platform/api]     # optional; omit to watch everything you can see
+        states: [opened, merged]     # optional; omit for all state changes
+      events:
+        projects: [platform/api]     # required for the events watcher
+        actions: [pushed, merged]    # optional; omit for all actions
+
+  # --- Any other JSON REST service: zero code needed -----------------------
+  - name: release-monitor
+    type: rest
+    url: https://release-monitor.internal/api/changes
+    interval: 2m
+    headers:
+      Authorization: "Bearer ${RELEASE_MONITOR_TOKEN}"
+    items: "changes"                 # gjson path to the array in the response
+    mapping:
+      id: "uid"                      # required: stable id (dedup key)
+      title: "summary"               # required: notification title
+      body: "detail"                 # optional
+      link: "href"                   # optional: target URL for the notification
+      fingerprint: "rev"             # optional: re-notify when this changes
+      # occurred_at: "at"            # optional: RFC3339 timestamp field
