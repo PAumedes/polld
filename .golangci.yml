@@ -23,11 +23,10 @@ linters:
     - copyloopvar     # loop variable capture safety
     - perfsprint      # fmt.SprintX where a cheaper call exists
     - godot           # doc comments end in a period
+  settings:
+    godot:
+      scope: declarations   # only exported/doc comments, not chatter inside funcs
 
 formatters:
   enable:
     - gofmt           # formatting enforced
-
-linters-settings:
-  godot:
-    scope: declarations   # only exported/doc comments, not chatter inside funcs
